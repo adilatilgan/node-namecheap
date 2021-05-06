@@ -21,6 +21,10 @@ nameCheap.domains.check(search)
   .then(response=>console.log(response))
 	.catch(err=>{console.log(err)})
 
+
+// Search prices of a com domain
+ nameCheap.users.getPricing(ProductTypes.DOMAIN, ProductCategories.DOMAINS, ActionNames.REGISTER, "COM");
+
 ```
 
-Only Domain search for now, adding more functionality while I move forward on my side project
+Only these supported for now, adding more functionality while I move forward on my side project

@@ -1,7 +1,13 @@
-import { NameCheapResponse } from './types';
+import {
+  NameCheapResponse,
+  ProductTypes,
+  ProductCategories,
+  ActionNames,
+} from './types';
 
 const axios = require('axios').default;
 const parser = require('xml2json');
+// const querystring = require('querystring');
 
 export default class NameCheap {
   private ApiUser: string;
@@ -25,10 +31,41 @@ export default class NameCheap {
     const that = this;
     return {
       check: async (domains): Promise<NameCheapResponse> => {
+        const DomainList = (Array.isArray(domains) ? domains : [domains]).join(
+          ',',
+        );
+        const response = await that
+          .command('domains.check', { DomainList }, 'GET')
+          .then((resp) => resp)
+          .catch((err) => {
+            console.log(err);
+            return err;
+          });
+        return response;
+      },
+    };
+  }
+
+  get users() {
+    const that = this;
+    return {
+      getPricing: async (
+        ProductType: ProductTypes = ProductTypes.DOMAIN,
+        ProductCategory: ProductCategories = ProductCategories.DOMAINS,
+        PromotionCode = null,
+        ActionName: ActionNames = ActionNames.REGISTER,
+        ProductName = 'COM',
+      ): Promise<NameCheapResponse> => {
         const response = await that
           .command(
-            'domains.check',
-            Array.isArray(domains) ? domains : [domains],
+            'users.getPricing',
+            {
+              ProductType,
+              ProductCategory,
+              PromotionCode,
+              ActionName,
+              ProductName,
+            },
             'GET',
           )
           .then((resp) => resp)
@@ -43,21 +80,35 @@ export default class NameCheap {
 
   command = async (
     command,
-    data,
+    parameters,
     method: 'GET',
   ): Promise<NameCheapResponse> => {
-    const params = {
+    axios.interceptors.request.use((x) => {
+      console.log(x);
+
+      return x;
+    });
+
+    axios.interceptors.response.use((x) => {
+      const printable = `${new Date()} | Response: ${
+        x.status
+      } | ${JSON.stringify(x.data)}`;
+      console.log(printable);
+
+      return x;
+    });
+    const nameCheapParams = {
       ApiUser: this.ApiUser,
       UserName: this.ApiUser,
       ApiKey: this.ApiKey,
       ClientIp: this.ClientIp,
       Command: `namecheap.${command}`,
-      DomainList: data.join(','),
     };
+    Object.assign(nameCheapParams, parameters);
     const response = await axios({
       method,
       url: this.endpoint,
-      params,
+      params: nameCheapParams,
     });
     return this.parse(response.data);
   };
