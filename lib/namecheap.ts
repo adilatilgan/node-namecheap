@@ -34,13 +34,11 @@ export default class NameCheap {
         const DomainList = (Array.isArray(domains) ? domains : [domains]).join(
           ',',
         );
-        const response = await that
-          .command('domains.check', { DomainList }, 'GET')
-          .then((resp) => resp)
-          .catch((err) => {
-            console.log(err);
-            return err;
-          });
+        const response = await that.command(
+          'domains.check',
+          { DomainList },
+          'GET',
+        );
         return response;
       },
     };
@@ -54,7 +52,7 @@ export default class NameCheap {
         ProductCategory: ProductCategories = ProductCategories.DOMAINS,
         PromotionCode = null,
         ActionName: ActionNames = ActionNames.REGISTER,
-        ProductName = 'COM',
+        ProductName = null,
       ): Promise<NameCheapResponse> => {
         const response = await that
           .command(
@@ -70,7 +68,6 @@ export default class NameCheap {
           )
           .then((resp) => resp)
           .catch((err) => {
-            console.log(err);
             return err;
           });
         return response;
@@ -84,19 +81,9 @@ export default class NameCheap {
     method: 'GET',
   ): Promise<NameCheapResponse> => {
     axios.interceptors.request.use((x) => {
-      console.log(x);
-
       return x;
     });
 
-    axios.interceptors.response.use((x) => {
-      const printable = `${new Date()} | Response: ${
-        x.status
-      } | ${JSON.stringify(x.data)}`;
-      console.log(printable);
-
-      return x;
-    });
     const nameCheapParams = {
       ApiUser: this.ApiUser,
       UserName: this.ApiUser,
@@ -113,7 +100,7 @@ export default class NameCheap {
     return this.parse(response.data);
   };
 
-  private parse = (response): any => {
+  private static parse = (response): any => {
     return parser.toJson(response, { object: true, coerce: true });
   };
 }
