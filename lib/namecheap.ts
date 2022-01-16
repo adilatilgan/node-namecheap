@@ -100,7 +100,8 @@ export default class NameCheap {
     return this.parse(response.data);
   };
 
-  private static parse = (response): any => {
+  // eslint-disable-next-line
+  private parse = (response): any => {
     return parser.toJson(response, { object: true, coerce: true });
   };
 }
