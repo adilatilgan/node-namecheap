@@ -24,7 +24,7 @@ export default class NameCheap {
     this.ClientIp = clientIp;
     this.endpoint = `https://api.${
       sandbox ? 'sandbox' : ''
-    }.namecheap.com/xml.response`;
+    }namecheap.com/xml.response`;
   }
 
   get domains() {
